@@ -1,15 +1,27 @@
 package net.fgakk.examples.greenmail
 
 import net.fgakk.examples.greenmail.ExamplesGreenmailApplication.ExamplesGreenmailApplication.log
+import org.apache.velocity.VelocityContext
+import org.apache.velocity.app.VelocityEngine
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.MimeMessageHelper
+import java.io.StringWriter
 import java.util.*
 
 @SpringBootApplication
 class ExamplesGreenmailApplication : CommandLineRunner {
+
+    @Autowired
+    lateinit var mailSender: JavaMailSender
+
+    @Autowired
+    lateinit var velocityEngine: VelocityEngine
 
     override fun run(vararg args: String?) {
         var running = true
@@ -22,12 +34,15 @@ class ExamplesGreenmailApplication : CommandLineRunner {
             println("Enter recipient: (This example supports only a single recipient)")
             val mailTo = scanner.nextLine()
             println("recipient $mailTo")
+            println("Enter a name to address to: ")
+            val name = scanner.nextLine()
+            println("name $name")
             println("Enter the message you want to send:")
             val message = scanner.nextLine()
             println(message)
             val isMailTobeSent = sendMailPrompt(scanner, subject, mailTo, message)
             if (isMailTobeSent) {
-                sendMail()
+                sendMail(subject = subject, name = name, mailTo = mailTo, message = message)
             } else {
                 println("Mail will not be sent")
             }
@@ -35,8 +50,29 @@ class ExamplesGreenmailApplication : CommandLineRunner {
         }
     }
 
-    private fun sendMail() {
-        TODO("Not yet implemented")
+    private fun sendMail(subject: String, name: String, mailTo: String, message: String) {
+
+        val mimeMessage = mailSender.createMimeMessage()
+        val mimeMessageHelper = MimeMessageHelper(mimeMessage)
+
+        mimeMessageHelper.setFrom("test@fgakk.net")
+        mimeMessageHelper.setSubject(subject)
+        mimeMessageHelper.setTo(mailTo)
+
+        val template = velocityEngine.getTemplate("./templates/mail-template.vm")
+
+        val velocityContext = VelocityContext()
+        velocityContext.put("name", name)
+        velocityContext.put("message", message)
+        velocityContext.put("link", "https://github.com/fgakk")
+
+        val stringWriter = StringWriter()
+
+        template.merge(velocityContext, stringWriter)
+
+        mimeMessageHelper.setText(stringWriter.toString(), true)
+
+        mailSender.send(mimeMessage)
     }
 
     private fun sendMailPrompt(scanner: Scanner, subject: String, mailTo: String, message: String): Boolean {
