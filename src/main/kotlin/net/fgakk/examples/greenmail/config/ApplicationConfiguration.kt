@@ -1,4 +1,4 @@
-package net.fgakk.examples.greenmail
+package net.fgakk.examples.greenmail.config
 
 import org.apache.velocity.app.VelocityEngine
 import org.springframework.context.annotation.Bean

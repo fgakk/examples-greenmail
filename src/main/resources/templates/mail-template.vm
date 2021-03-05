@@ -2,7 +2,7 @@
 <body>
 <h1>This is a test email</h1>
 <p>Hello ${name}. ${message}. If you wish to see more examples like this checkout here <a href="${link}">
-    my github repositoryTE
+    my github repository
 </a></p>
 <p>Cheers</p>
 </body>
