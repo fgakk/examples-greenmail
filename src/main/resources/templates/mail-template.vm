@@ -1,7 +1,7 @@
 <html lang="en">
 <body>
 <h1>This is a test email</h1>
-<p>Hello ${name}.
+<p>Hello ${name}.</p>
 <p>${message}.</p>
 <p>If you wish to see more examples like this checkout here <a href="${link}">
     my github repository</a>
